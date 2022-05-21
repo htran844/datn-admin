@@ -40,6 +40,10 @@ const navConfig = [
     title: 'Not found',
     path: '/404',
     icon: getIcon('eva:alert-triangle-fill'),
+  },{
+    title: 'Inventory',
+    path: '/dashboard/inventory',
+    icon: getIcon('eva:alert-triangle-fill'),
   },
 ];
 
