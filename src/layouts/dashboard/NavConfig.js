@@ -27,6 +27,11 @@ const navConfig = [
     icon: getIcon('eva:file-text-fill'),
   },
   {
+    title: 'Product Management',
+    path: '/dashboard/productss',
+    icon: getIcon('eva:file-text-fill'),
+  },
+  {
     title: 'login',
     path: '/login',
     icon: getIcon('eva:lock-fill'),
