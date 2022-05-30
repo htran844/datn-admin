@@ -1,10 +1,9 @@
 
-import { Button, Tooltip, Segmented, Table, Modal, Select } from 'antd';
+import { Button, Tooltip, Segmented, Table, Modal, Select, Input } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 
 const { Option } = Select;
-
 export default function ImportProducts(props) {
     const columns = [
         {
@@ -96,7 +95,22 @@ export default function ImportProducts(props) {
         console.log(pagination);
     };
 
-    const modalolumns = [
+
+    const [modalTblData, setModalTblData] = useState([{
+
+        id: '1',
+        product: 'Sản Phẩm 1',
+        quantity: 11,
+        price: '100.000$',
+    },
+    {
+        id: '2',
+        product: 'Sản Phẩm 2',
+        quantity: 10,
+        price: '100.000$',
+    },
+    ]);
+    const modalcolumns = [
         {
             title: 'STT',
             dataIndex: 'id',
@@ -113,6 +127,18 @@ export default function ImportProducts(props) {
             title: 'Số Lượng',
             dataIndex: 'quantity',
             key: 'quantity',
+            render: (record, row, index) => (
+                <>
+                    <Input type='number' value={modalTblData[index].quantity} onChange={
+                        (e) => {
+                            modalTblData[index].quantity = e.target.value;
+                            setModalTblData([...modalTblData]);
+                            console.log('change to: ', e.target.value);
+                        }
+                    } />
+
+                </>
+            ),
             width: 150,
         },
         {
@@ -176,7 +202,7 @@ export default function ImportProducts(props) {
                         ))
                     }
                 </Select>
-                <Table columns={modalolumns} />
+                <Table columns={modalcolumns} dataSource={modalTblData} />
             </Modal>
             <div className='page-header-actions'>
                 <Tooltip title="prompt text" color='cyan' key='red'>

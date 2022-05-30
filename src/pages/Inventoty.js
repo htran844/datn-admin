@@ -1,7 +1,7 @@
 import { Tabs } from 'antd';
 import './css/inventory.css';
 import ImportProducts from './components/ImportProducts';
-import ExportProducts from './components/ExportProducts';
+// import ExportProducts from './components/ExportProducts';
 
 
 const { TabPane } = Tabs;
@@ -18,7 +18,8 @@ export default function Inventory() {
                         <ImportProducts />
                     </TabPane>
                     <TabPane tab="Xuất kho" key="export">
-                        <ExportProducts />
+                        af
+                        {/* <ExportProducts /> */}
                     </TabPane>
                 </Tabs>
             </div>
