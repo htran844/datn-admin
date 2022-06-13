@@ -37,12 +37,6 @@ export default function ImportProducts(props) {
             width: 150,
         },
         {
-            title: 'Còn Trong Kho',
-            dataIndex: 'totalRemain',
-            key: '42',
-            width: 150,
-        },
-        {
             title: 'Ngày Tạo',
             dataIndex: 'createdDate',
             key: '5',

@@ -8,6 +8,10 @@ import { LoadingButton } from '@mui/lab';
 // component
 import Iconify from '../../../components/Iconify';
 
+
+import AccountService from '../../../service/AccountService';
+
+
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
@@ -16,19 +20,32 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const LoginSchema = Yup.object().shape({
-    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
+    username: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
   });
 
   const formik = useFormik({
     initialValues: {
-      email: '',
+      username: '',
       password: '',
       remember: true,
     },
     validationSchema: LoginSchema,
-    onSubmit: () => {
-      navigate('/dashboard', { replace: true });
+    onSubmit: (payload) => {
+      console.log('submit', payload);
+      AccountService.postLogin(payload).then((res) => {
+
+        console.log('res', res);
+        if(res.status === 200 && res.data.result === 'SUCCESS'){
+          const {data} = res;
+          console.log('login success', data);
+          navigate('/dashboard', { replace: true });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      return false;
     },
   });
 
@@ -45,11 +62,10 @@ export default function LoginForm() {
           <TextField
             fullWidth
             autoComplete="username"
-            type="email"
-            label="Email address"
-            {...getFieldProps('email')}
-            error={Boolean(touched.email && errors.email)}
-            helperText={touched.email && errors.email}
+            type="text"
+            label="Enter Username or Email address"
+            {...getFieldProps('username')}
+            error={Boolean(touched.username && errors.username)}
           />
 
           <TextField
