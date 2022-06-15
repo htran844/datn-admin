@@ -5,6 +5,9 @@ import { useFormik, Form, FormikProvider } from 'formik';
 // material
 import { Link, Stack, Checkbox, TextField, IconButton, InputAdornment, FormControlLabel } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+
+import {message} from 'antd';
+
 // component
 import Iconify from '../../../components/Iconify';
 
@@ -20,9 +23,11 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const LoginSchema = Yup.object().shape({
-    username: Yup.string().required('Username is required'),
-    password: Yup.string().required('Password is required'),
+    username: Yup.string('').required('Username is required'),
+    password: Yup.string('').required('Password is required'),
   });
+
+
 
   const formik = useFormik({
     initialValues: {
@@ -38,11 +43,23 @@ export default function LoginForm() {
         console.log('res', res);
         if(res.status === 200 && res.data.result === 'SUCCESS'){
           const {data} = res;
-          console.log('login success', data);
+          message.success({
+            content: 'Login Success!',
+            style: {
+              zIndex: '1500',
+            },
+          });
+          localStorage.setItem('token', data.data.token);
           navigate('/dashboard', { replace: true });
         }
+        else 
+          // message.error(res.data.message);
+          message.success({
+            content: 'Login Success!',
+          });
       })
       .catch((err) => {
+        message.error('Login failed!');
         console.log(err);
       })
       return false;
@@ -59,13 +76,13 @@ export default function LoginForm() {
     <FormikProvider value={formik}>
       <Form autoComplete="off" noValidate onSubmit={handleSubmit}>
         <Stack spacing={3}>
-          <TextField
+        <TextField
             fullWidth
-            autoComplete="username"
-            type="text"
-            label="Enter Username or Email address"
+            type='text'
+            label="Username"
             {...getFieldProps('username')}
             error={Boolean(touched.username && errors.username)}
+            helperText={touched.username && errors.username}
           />
 
           <TextField

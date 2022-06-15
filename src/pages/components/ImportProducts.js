@@ -1,7 +1,9 @@
 
-import { Button, Tooltip, Segmented, Table, Modal, Select, Input } from 'antd';
+import { Button, Tooltip, Segmented, Table, Modal, Select, Input, Popconfirm, message } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import WarehouseService from '../../service/WarehouseService';
 
 const { Option } = Select;
 export default function ImportProducts(props) {
@@ -20,13 +22,13 @@ export default function ImportProducts(props) {
         },
         {
             title: 'Ghi chú',
-            dataIndex: 'note',
+            dataIndex: 'description',
             key: '3',
             width: 150,
         },
         {
             title: 'Tổng Tiền',
-            dataIndex: 'totalMoney',
+            dataIndex: 'sumMoney',
             key: '4',
             width: 150,
         },
@@ -49,34 +51,20 @@ export default function ImportProducts(props) {
             width: 150,
         },
         {
-            title: 'Trạng Thái',
-            key: 'status',
+            title: 'Action',
             fixed: 'right',
             width: 70,
-            render: (data) => <Tooltip title="" color='cyan' key='red'>
-                <Button type="danger" size='small' >
-                    {data.status}
-                </Button>
+            render: (record) => <Tooltip title="" color='cyan' key='red'>
+                <Popconfirm title="Bạn có chắc chắn muốn xóa?" 
+                onConfirm={() => deleteRecord(record.id)}>
+                    <Button   type="danger" size='small' >
+                        Delete
+                    </Button>
+                </Popconfirm>
             </Tooltip>,
         },
     ];
     const [data, setData] = useState([
-        {
-            id: '1',
-            user: 'Nguyễn Văn A',
-            note: 'Nhập từ kho',
-            totalMoney: '100.000$',
-            createdDate: '2020-01-01',
-            status: 'Hủy',
-        },
-        {
-            id: '2',
-            user: 'Nguyễn Văn B',
-            note: 'Nhập từ kho',
-            totalMoney: '100.000$',
-            createdDate: '2020-01-01',
-            status: 'Hủy',
-        }
     ]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState({
@@ -106,14 +94,14 @@ export default function ImportProducts(props) {
     ]);
     const modalcolumns = [
         {
-            title: 'STT',
+            title: '#',
             dataIndex: 'id',
-            key: '1',
+            key: 'id',
             width: 150,
         },
         {
             title: 'Sản Phẩm',
-            dataIndex: 'product',
+            dataIndex: 'productName',
             key: 'product',
             width: 150,
         },
@@ -140,6 +128,19 @@ export default function ImportProducts(props) {
             dataIndex: 'price',
             key: 'price',
             width: 150,
+        },{
+            title: 'Action',
+            key: 'action',
+            fixed: 'right',
+            width: 70,
+            render: (record) => <Tooltip title="" color='cyan' key='red'>
+                <Popconfirm title="Bạn có chắc chắn muốn xóa?" 
+                 >
+                    <Button  type="danger" size='small' >
+                        Delete
+                    </Button>
+                </Popconfirm>
+            </Tooltip>,
         },
     ];
     const [modalOptions, setModalOptions] = useState([
@@ -162,8 +163,17 @@ export default function ImportProducts(props) {
     }
     const [isModalVisible, setIsModalVisible] = useState(false);
 
-    const showModal = (record) => {
-        setIsModalVisible(true);
+    const showModal = (id) => {
+        setLoading(true);
+        console.log(id)
+        WarehouseService.getDetailWarehouseById(id).then(res => {
+            const {data} = res;
+            console.log('data detail: ',  data)
+
+            setIsModalVisible(true);
+            setLoading(false);
+        })
+        .catch((err) => {message.error(err.response.data.message); setLoading(false);});
     };
 
     const handleOk = () => {
@@ -173,6 +183,23 @@ export default function ImportProducts(props) {
     const handleCancel = () => {
         setIsModalVisible(false);
     };
+    function deleteRecord(id){
+        console.log(id)
+    }
+
+    function getAllWarehouses(page, size=10){
+        setLoading(true);
+        WarehouseService.getAllWarehouses(page, size).then(res => {
+            const {data} = res;
+            console.log('data: ', data);
+            setData(data.data.content);
+            setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+    useEffect(() => {
+        getAllWarehouses(0);
+    }, []);
 
 
     return (
@@ -207,9 +234,9 @@ export default function ImportProducts(props) {
                 </Tooltip>
             </div>
             <Segmented options={['Tất cả', 'Weekly', 'Monthly', 'Quarterly', 'Yearly']} />
-            <Table onRow={(record, rowIndex) => {
+            <Table onRow={(record) => {
                 return {
-                    onClick: event => showModal(record), // click row
+                    onDoubleClick: () => showModal(record.id), // click row
                 };
             }} pagination={page} loading={loading} onChange={handlePageTableChange}
                 columns={columns} dataSource={data} scroll={{ x: 1500, y: 300 }} />
