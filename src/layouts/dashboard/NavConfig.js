@@ -1,3 +1,5 @@
+import { ShopOutlined } from '@ant-design/icons';
+
 // component
 import Iconify from '../../components/Iconify';
 
@@ -43,7 +45,7 @@ const navConfig = [
   },{
     title: 'Inventory',
     path: '/dashboard/inventory',
-    icon: getIcon('eva:alert-triangle-fill'),
+    icon: <ShopOutlined />,
   },
 ];
 
