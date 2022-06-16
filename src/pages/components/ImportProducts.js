@@ -11,7 +11,7 @@ import {
     Spin,
     DatePicker
 } from 'antd';
-import {DownloadOutlined} from '@ant-design/icons';
+import {PlusOutlined} from '@ant-design/icons';
 import {useEffect, useState} from 'react';
 import moment from 'moment';
 
@@ -150,7 +150,7 @@ export default function ImportProducts(props) {
             key: 'subTotal',
             render: (record, row, index) => (
                 <>
-                    {record}$
+                    {row.quantity * row.price}$
                 </>
             ),
             align: 'center',
@@ -218,7 +218,7 @@ export default function ImportProducts(props) {
             const {data} = res;
             console.log('data detail: ', data)
 
-            setModalTblData(data.data.map(e => ({...e, key: e.id})));
+            setModalTblData(data.data.map(e => ({...e, key: e.id, productDetailId: e.productDetailId})));
             setIsModalVisible(true);
             setLoading(false);
         })
@@ -229,12 +229,35 @@ export default function ImportProducts(props) {
     };
 
     const handleOk = () => {
-        console.log('saving warehouse: ', modalTblData)
         // setIsModalVisible(false);
+        const payload = {
+            id: warehouseId,
+            dateWarehouse: moment(new Date()).format('YYYY-MM-DD'),
+            warehouseDetails: modalTblData,
+            description: warehouseNote,
+
+        };
+
+        console.log('saving warehouse: ', payload);
+        if (warehouseId === null)
+            WarehouseService.saveWarehouse(payload).then(res => {
+                console.log('saved warehouse: ', res);
+            })
+                .catch(err => message.error(err.response.data.message));
+        else
+            WarehouseService.updateWarehouse(payload).then(res => {
+                console.log('updated warehouse: ', res);
+            })
+                .catch(err => message.error(err.response.data.message));
     };
 
     const handleCancel = () => {
         setIsModalVisible(false);
+        setWarehouseNote(null);
+        setModalTblData([]);
+        setModalOptions([]);
+        setWarehouseId(null);
+        setWarehouseNote(null);
     };
 
     function deleteRecord(id) {
@@ -258,13 +281,15 @@ export default function ImportProducts(props) {
         getAllWarehouses(0);
     }, []);
 
-    const listItemProduct = [{
-        key: "1",
-        label: ' 1st menu item'
-    }]
 
     const [dataSeach, setDataSeach] = useState([]);
     const [fetching, setFetching] = useState(false);
+    const [warehouseNote, setWarehouseNote] = useState(null);
+    const [warehouseId, setWarehouseId] = useState(null);
+    const [selectVal, setSelectVal] = useState({
+        value: '',
+        label: ''
+    });
     const handleSelectSearch = (e) => {
         console.log('change: ', e)
         setFetching(true);
@@ -292,10 +317,11 @@ export default function ImportProducts(props) {
             key: p.productDetailId,
             productName: p.productName,
             price: 0,
-            quantity: 0,
+            quantity: 1,
             dateOfManufacture: currentDate,
             expireDate: currentDate,
-            subTotal: 0
+            subTotal: 0,
+            productDetailId: p.productDetailId,
         })])
         setDataSeach([]);
         setModalOptions([]);
@@ -309,33 +335,39 @@ export default function ImportProducts(props) {
                    onOk={handleOk}
                    cancelText="Đã Xác Nhận"
                    onCancel={handleCancel}>
-                <Select
-                    showSearch
-
-                    placeholder="Nhập tên, mã sản phẩm"
-                    labelInValue
-                    style={{width: 500}}
-                    filterOption={false}
-                    dropdownStyle={{zIndex: 1600}}
-                    onSearch={handleSelectSearch}
-                    onChange={handleSelectChange}
-                    notFoundContent={fetching ? <Spin size="small"/> : null}
-                    options={modalOptions}
-                />
+                <div>
+                    <Select
+                        showSearch
+                        placeholder="Nhập tên, mã sản phẩm"
+                        labelInValue
+                        value={selectVal}
+                        style={{width: '40%'}}
+                        filterOption={false}
+                        dropdownStyle={{zIndex: 1600}}
+                        onSearch={handleSelectSearch}
+                        onChange={handleSelectChange}
+                        notFoundContent={fetching ? <Spin size="small"/> : null}
+                        options={modalOptions}
+                    />
+                    <Input style={{width: '50%', float: 'right'}} value={warehouseNote} onChange={(e) => setWarehouseNote(e.target.value)}
+                           placeholder="Note"/>
+                </div>
                 <Table columns={modalColumns} dataSource={modalTblData}/>
             </Modal>
             <div className='page-header-actions'>
-                <Tooltip title="prompt text" color='cyan' key='red'>
-                    <Button type="primary" icon={<DownloadOutlined/>} size='small'/>
-                </Tooltip>
-                <Tooltip title="prompt text" color='cyan' key='red1'>
-                    <Button type="primary" icon={<DownloadOutlined/>} size='small'/>
+                <Tooltip title="Add New" overlayStyle={{zIndex: 1500}} onClick={() => {
+                    setIsModalVisible(true);
+                }} color='cyan' key='red'>
+                    <Button type="primary" icon={<PlusOutlined/>} size='small'/>
                 </Tooltip>
             </div>
             <Segmented options={['Tất cả', 'Weekly', 'Monthly', 'Quarterly', 'Yearly']}/>
             <Table onRow={(record) => {
                 return {
-                    onDoubleClick: () => showModal(record.id), // click row
+                    onDoubleClick: () => {
+                        setWarehouseId(record.id);
+                        showModal(record.id);
+                    }, // click row
                 };
             }} pagination={page} loading={loading} onChange={handlePageTableChange}
                    columns={columns} dataSource={data} scroll={{x: 1500, y: 300}}/>
