@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import Products from './pages/Products';
 import DashboardApp from './pages/DashboardApp';
 import Inventory from './pages/Inventoty';
+import ProductManage from './pages/ProductManage';
 
 // ----------------------------------------------------------------------
 
@@ -25,6 +26,7 @@ export default function Router() {
         { path: 'products', element: <Products /> },
         { path: 'blog', element: <Blog /> },
         { path: 'inventory', element: <Inventory /> },
+        { path: 'manage-products', element: <ProductManage /> },
       ],
     },
     {

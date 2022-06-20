@@ -7,7 +7,7 @@ import ScrollToTop from './components/ScrollToTop';
 import { BaseOptionChartStyle } from './components/chart/BaseOptionChart';
 
 // ----------------------------------------------------------------------
-import 'antd/dist/antd.css';
+import 'antd/dist/antd.min.css';
 
 
 export default function App() {
